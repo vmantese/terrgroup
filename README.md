@@ -40,19 +40,19 @@ package stringhasher
 //cardinality of result is not known
 func hashesJoinedStrings(ss []string) ([]string,error){
 	var g terrgroup.Group
-	hh := new(HashHolder)
-	err := g.Transform(HashesDelimitedStrings(stringsToBeHashed),hh)
+	hashes := new(HashHolder)
+	err := g.Transform(HashesDelimitedStrings(ss),hashes)
 	if err != nil{
 		return nil,err
 	}
-	return []string(*hh),nil
+	return *hashes,nil
 } 
 
 //cardinality of result is known
 func hashesStrings(ss []string) ([]string,error){
 	var g terrgroup.Group
 	hashes := make(HashHolder,len(ss))
-	err := g.ExactTransform(HashesStrings(stringsToBeHashed),&hashse)
+	err := g.ExactTransform(HashesStrings(ss),&hashes)
 	if err != nil{
 		return nil,err
 	}
