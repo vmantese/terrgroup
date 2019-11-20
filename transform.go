@@ -6,6 +6,8 @@ import (
 )
 
 type Group struct {
+	// not fully implemented,currently just limits channel buffer size
+	// defaults to 10
 	MaxThreads *int
 	g *errgroup.Group
 	ctx context.Context
