@@ -39,20 +39,20 @@ package stringhasher
 //
 //cardinality of result is not known
 func hashesJoinedStrings(ss []string) ([]string,error){
-	var g terrgroup.Group
-	hashes := new(HashHolder)
-	err := g.Transform(HashesDelimitedStrings(ss),hashes)
-	if err != nil{
-		return nil,err
-	}
-	return *hashes,nil
+    var g terrgroup.Group
+    hashes := new(HashHolder)
+    err := g.Transform(HashesDelimitedStrings(ss),hashes)
+    if err != nil{
+        return nil,err
+    }
+    return *hashes,nil
 } 
 
 //cardinality of result is known
 func hashesStrings(ss []string) ([]string,error){
-	var g terrgroup.Group
-	hashes := make(HashHolder,len(ss))
-	err := g.ExactTransform(HashesStrings(ss),&hashes)
+    var g terrgroup.Group
+    hashes := make(HashHolder,len(ss))
+    err := g.ExactTransform(HashesStrings(ss),&hashes)
 	if err != nil{
 		return nil,err
 	}
@@ -66,48 +66,48 @@ func (h HashesDelimitedStrings) Length() int{
 }
 
 func (h HashesDelimitedStrings) Transform(i int) (interface{},error){
-	hasher := sha256.New()
+    hasher := sha256.New()
     strings := strings.Split(h[i],",")
     hashes,err := hashesStrings(strings)
     if err != nil{
     	return nil,err
     }
-	// successfuly transform
-	return hashes,nil
+    // successfuly transform
+    return hashes,nil
 }
 
 type HashesStrings []string
 
 func (h HashesStrings) Length() int{
-	return len(h)
+    return len(h)
 }
 
 func (h HashesStrings) Transform(i int) (interface{},error){
-	hasher := sha256.New()
-	if n,err := encoder.Write([]byte(h[i]));err != nil{
-		return nil,err
-	}else if n != len(h[i]){
-		return nil, errors.New("unexpected number of bytes written to hasher")
-	}
-	// successfuly transform
-	return string(encoder.Sum([]byte{})),nil
+    hasher := sha256.New()
+    if n,err := encoder.Write([]byte(h[i]));err != nil{
+    	return nil,err
+    }else if n != len(h[i]){
+    	return nil, errors.New("unexpected number of bytes written to hasher")
+    }
+    // successfuly transform
+    return string(encoder.Sum([]byte{})),nil
 }
 
 type HashHolder []string
 
 func (h *HashHolder) Append(i interface{}){
-	if str,ok := i.(string);ok{
-		*h = append(*h,str)
-	}
+    if str,ok := i.(string);ok{
+    	*h = append(*h,str)
+    }
     if strs,ok := i.([]string);ok{
         *h = append(*h,strs...)
     }
 }
 
 func (h HashHolder) InjectAt(i int,j interface{}){
-	if str,ok := j.(string);ok{
-		h[i] = str
-	}
+    if str,ok := j.(string);ok{
+    	h[i] = str
+    }
 }
 
 
