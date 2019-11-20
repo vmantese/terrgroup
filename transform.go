@@ -51,8 +51,10 @@ type Injector interface {
 func (s *Group) GoTransform(input Transformer, output Appender) error {
 	var g *errgroup.Group
 	var ctx context.Context
-	if s.g == nil{
+	if s.g == nil ||  s.ctx == nil{
 		g,ctx =  errgroup.WithContext(context.Background())
+	}else{
+		g,ctx = s.g,s.ctx
 	}
 	var mt int
 	if s.MaxThreads != nil {
@@ -116,6 +118,8 @@ func (s *Group) GoExactTransform(input Transformer, injector Injector) error {
 	var ctx context.Context
 	if s.g == nil{
 		g,ctx =  errgroup.WithContext(context.Background())
+	}else{
+		g,ctx = s.g,s.ctx
 	}
 	var mt int
 	if s.MaxThreads != nil {
