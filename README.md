@@ -109,13 +109,7 @@ func (h HashHolder) InjectAt(i int,j interface{}){
 		h[i] = str
 	}
 }
-// initialize terrgroup
-g := terrgroup.Group
 
-
-//result cardinality not known
-stringsToBeHashed := []string{"first string to be hashed","second string to be hashed"}
-hh := new(HashHolder)
 
 
 ```
