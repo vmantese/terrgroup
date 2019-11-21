@@ -1,63 +1,3 @@
-# terrgroup
-Uses error groups to rapidly iterate through a grouping and asynchronously  
-apply an operation to all elements of the group
-
-The result is always thread safe as compared to using an errgroup on a map or struct
-
-Exits early with an error if any of the individual transforms error
-
-Relies on two(or a more optimized third interface)
-
-```go
-type Transformer interface{
-    Length() (length int)
-    Transform(position i) (interface{},error)
-}
-```
-
-and the grouping that will receive the transformed elements
-```go
-type Appender interface{
-	Append(interface{})
-}
-
-```
-
-or the more optimized version that relies on pre-allocated memory where the result cardinality is known
-```go
-type Injector interface{
-	InjectAt(position int, interface{})
-}
-```
-
-
-A simple example
-
-```go
-//cardinality of result is not known
-func ParseBook(book Book) ([]Sentence, error) {
-	var g terrgroup.Group
-	notepad := new(Notepad)
-	if err := g.GoTransform(FindsHelloOrWorld(book), notepad);err != nil{
-		return nil,err
-	}
-	return *notepad,nil
-}
-
-//cardinality of result is known
-func ParseFirstSentenceBook(book Book) ([]Sentence, error) {
-	var g terrgroup.Group
-	notepad := make(Notepad, len(book))
-	if err := g.GoExactTransform(FindsHelloOrWorld(book), notepad);err != nil{
-		return nil,err
-	}
-	return notepad,nil
-}
-```
-
-
-the complete code:
-```go
 package examples
 
 import (
@@ -146,6 +86,3 @@ func (n Notepad) InjectAt(pos int, i interface{}) {
 		n[pos] = sentences[0]
 	}
 }
-
-
-```

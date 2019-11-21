@@ -9,16 +9,16 @@ type Group struct {
 	// not fully implemented,currently just limits channel buffer size
 	// defaults to 10
 	MaxThreads *int
-	g *errgroup.Group
-	ctx context.Context
+	g          *errgroup.Group
+	ctx        context.Context
 }
 
-func WithContext(ctx context.Context) (*Group, context.Context){
-	g,ctx := errgroup.WithContext(ctx)
+func WithContext(ctx context.Context) (*Group, context.Context) {
+	g, ctx := errgroup.WithContext(ctx)
 	return &Group{
-		g: g,
+		g:   g,
 		ctx: ctx,
-	},ctx
+	}, ctx
 }
 
 // generally, a transformer is an array or a slice.
@@ -53,10 +53,10 @@ type Injector interface {
 func (s *Group) GoTransform(input Transformer, output Appender) error {
 	var g *errgroup.Group
 	var ctx context.Context
-	if s.g == nil ||  s.ctx == nil{
-		g,ctx =  errgroup.WithContext(context.Background())
-	}else{
-		g,ctx = s.g,s.ctx
+	if s.g == nil || s.ctx == nil {
+		g, ctx = errgroup.WithContext(context.Background())
+	} else {
+		g, ctx = s.g, s.ctx
 	}
 	var mt int
 	if s.MaxThreads != nil {
@@ -79,7 +79,7 @@ func (s *Group) GoTransform(input Transformer, output Appender) error {
 			if err != nil {
 				return err
 			}
-			select{
+			select {
 			case <-ctx.Done():
 				return ctx.Err()
 			case out <- v:
@@ -88,7 +88,7 @@ func (s *Group) GoTransform(input Transformer, output Appender) error {
 		}
 	}
 	for i := 0; i < input.Length(); i++ {
-		g.Go(fn(ctx,i, input, outputChan))
+		g.Go(fn(ctx, i, input, outputChan))
 	}
 	merge := func(outChan chan interface{}, errChan <-chan error, appender Appender) error {
 		for {
@@ -118,10 +118,10 @@ func (s *Group) GoTransform(input Transformer, output Appender) error {
 func (s *Group) GoExactTransform(input Transformer, injector Injector) error {
 	var g *errgroup.Group
 	var ctx context.Context
-	if s.g == nil{
-		g,ctx =  errgroup.WithContext(context.Background())
-	}else{
-		g,ctx = s.g,s.ctx
+	if s.g == nil {
+		g, ctx = errgroup.WithContext(context.Background())
+	} else {
+		g, ctx = s.g, s.ctx
 	}
 	var mt int
 	if s.MaxThreads != nil {
@@ -144,16 +144,16 @@ func (s *Group) GoExactTransform(input Transformer, injector Injector) error {
 			if err != nil {
 				return err
 			}
-			select{
-			 		case <-ctx.Done():
-			 			return ctx.Err()
-			 		case out <- v:
-			 			return nil
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case out <- v:
+				return nil
 			}
 		}
 	}
 	for i := 0; i < input.Length(); i++ {
-		g.Go(fn(ctx,i, input, outputChan))
+		g.Go(fn(ctx, i, input, outputChan))
 	}
 	merge := func(outChan chan interface{}, errChan <-chan error, injector Injector) error {
 		var i int
