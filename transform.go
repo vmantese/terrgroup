@@ -82,7 +82,8 @@ func (s *Group) GoTransform(input Transformer, output Appender) error {
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
-			case out <- v:
+			default:
+				out <- v
 				return nil
 			}
 		}
@@ -147,7 +148,8 @@ func (s *Group) GoExactTransform(input Transformer, injector Injector) error {
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
-			case out <- v:
+			default:
+				out <- v
 				return nil
 			}
 		}
