@@ -171,6 +171,7 @@ func (s *Group) GoExactTransform(input Transformer, injector Injector) error {
 			case result, more := <-outChan:
 				if more {
 					injector.InjectAt(i, result)
+					i++
 				} else {
 					return nil
 				}
