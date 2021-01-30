@@ -2,6 +2,7 @@ package terrgroup
 
 import (
 	"context"
+
 	"golang.org/x/sync/errgroup"
 )
 
@@ -44,9 +45,6 @@ type Injector interface {
 	InjectAt(i int, value interface{})
 }
 
-
-
-
 // This function will not maintain order between transformer and appender
 // and should be used when the cardinality of the non-error case is not known
 // if the expected cardinality is known, use GoExactTransform instead
@@ -67,10 +65,6 @@ func (s *Group) GoTransform(input Transformer, output Appender) error {
 	}
 
 	outputChan := make(chan interface{}, mt)
-	errChan := make(chan error)
-	go func() {
-		errChan <- g.Wait()
-	}()
 	//takes transform function and converts to errGroup friendly func
 	fn := func(ctx context.Context, i int, inputTransformer Transformer, out chan<- interface{}) func() error {
 
@@ -91,6 +85,11 @@ func (s *Group) GoTransform(input Transformer, output Appender) error {
 	for i := 0; i < input.Length(); i++ {
 		g.Go(fn(ctx, i, input, outputChan))
 	}
+	// g.Wait() MUST be called after g.Go(), otherwise we have a race condition.
+	errChan := make(chan error)
+	go func() {
+		errChan <- g.Wait()
+	}()
 	merge := func(outChan chan interface{}, errChan <-chan error, appender Appender) error {
 		for {
 			select {
