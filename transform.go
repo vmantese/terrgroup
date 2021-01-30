@@ -132,10 +132,6 @@ func (s *Group) GoExactTransform(input Transformer, injector Injector) error {
 	}
 
 	outputChan := make(chan interface{}, mt)
-	errChan := make(chan error)
-	go func() {
-		errChan <- g.Wait()
-	}()
 	//takes transform function and converts to errGroup friendly func
 	fn := func(ctx context.Context, i int, inputTransformer Transformer, out chan<- interface{}) func() error {
 
@@ -156,6 +152,10 @@ func (s *Group) GoExactTransform(input Transformer, injector Injector) error {
 	for i := 0; i < input.Length(); i++ {
 		g.Go(fn(ctx, i, input, outputChan))
 	}
+	errChan := make(chan error)
+	go func() {
+		errChan <- g.Wait()
+	}()
 	merge := func(outChan chan interface{}, errChan <-chan error, injector Injector) error {
 		var i int
 		for {
